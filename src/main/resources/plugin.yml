@@ -1,0 +1,21 @@
+name: BuildSync
+version: 1.0.0
+main: com.github.hhhzzzsss.buildsync.BuildSyncPlugin
+api-version: 1.18
+description: The main plugin behind the build sync server
+author: hhhzzzsss
+depend: [FastAsyncWorldEdit]
+
+commands:
+  select:
+    description: Select the plot that you're currently standing in
+    usage: /select
+    permission: buildsync.use
+  deselect:
+    description: Set active plot to null
+    usage: /deselect
+    permission: buildsync.use
+  toggleboundary:
+    description: Toggles the particles used to show the boundaries between plots
+    usage: /toggleboundary
+    permission: buildsync.use
