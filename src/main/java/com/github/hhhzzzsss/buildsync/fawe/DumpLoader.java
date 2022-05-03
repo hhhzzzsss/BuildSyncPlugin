@@ -1,5 +1,6 @@
 package com.github.hhhzzzsss.buildsync.fawe;
 
+import com.fastasyncworldedit.core.command.SuggestInputParseException;
 import com.github.hhhzzzsss.buildsync.plots.PlotCoord;
 import com.github.hhhzzzsss.buildsync.plots.PlotUtils;
 import com.sk89q.worldedit.EditSession;
@@ -35,8 +36,9 @@ public class DumpLoader implements Runnable {
 
     @Override
     public void run() {
+        FileInputStream fin = null;
         try {
-            FileInputStream fin = new FileInputStream(dumpPath.toFile());
+            fin = new FileInputStream(dumpPath.toFile());
             BufferedInputStream bin = new BufferedInputStream(fin);
             DataInputStream din = new DataInputStream(bin);
 
@@ -48,9 +50,27 @@ public class DumpLoader implements Runnable {
                 Component component = Component.text("Finished loading region dump").color(NamedTextColor.GRAY);
                 Bukkit.broadcast(component);
             });
-        } catch (IOException e) {
+        }catch (SuggestInputParseException e) {
             e.printStackTrace();
-        } finally {
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                Component component = Component.text("Invalid block used in region dump palette. Deleting.").color(NamedTextColor.RED);
+                Bukkit.broadcast(component);
+            });
+            try {
+                if (fin != null) {
+                    fin.close();
+                }
+                Files.delete(dumpPath);
+            } catch (IOException e2) {
+                e2.printStackTrace();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                Component component = Component.text("Error while loading region dump. See console for mode details").color(NamedTextColor.RED);
+                Bukkit.broadcast(component);
+            });
+        }  finally {
             finished = true;
         }
     }
@@ -60,7 +80,12 @@ public class DumpLoader implements Runnable {
     }
 
     private void loadFromStream(DataInputStream din) throws IOException {
-        try (EditSession editSession = WorldEdit.getInstance().newEditSession(world)) {
+        try (EditSession editSession =
+                     WorldEdit.getInstance()
+                             .newEditSessionBuilder()
+                             .world(world)
+                             .fastMode(true)
+                             .build()) {
             int paletteSize = din.readInt();
             ArrayList<BlockState> palette = new ArrayList<>();
             for (int i = 0; i < paletteSize; i++) {
@@ -74,7 +99,7 @@ public class DumpLoader implements Runnable {
                 for (int z = 0; z < PlotUtils.PLOT_DIM; z++) {
                     for (int x = 0; x < PlotUtils.PLOT_DIM; x++) {
                         BlockState blockState = palette.get(din.readInt());
-                        editSession.setBlock(x+offsetX, y, z+offsetZ, blockState);
+                        editSession.setBlock(x + offsetX, y, z + offsetZ, blockState);
                     }
                 }
             }
