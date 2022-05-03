@@ -1,12 +1,16 @@
 package com.github.hhhzzzsss.buildsync.plots;
 
+import com.google.gson.*;
+
+import java.lang.reflect.Type;
+
 public class PlotCoord {
     public final int x;
     public final int z;
 
-    public PlotCoord(int x, int y) {
+    public PlotCoord(int x, int z) {
         this.x = x;
-        this.z = y;
+        this.z = z;
     }
 
     public PlotCoord(String str) {
@@ -39,5 +43,19 @@ public class PlotCoord {
     @Override
     public String toString() {
         return "(" + x + "," + z + ")";
+    }
+
+    public static class PlotCoordDeserializer implements JsonDeserializer<PlotCoord>
+    {
+        @Override
+        public PlotCoord deserialize(JsonElement jsonElement, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+            if (jsonElement.isJsonObject()) {
+                JsonObject jsonObject = jsonElement.getAsJsonObject();
+                return new PlotCoord(jsonObject.get("x").getAsInt(), jsonObject.get("z").getAsInt());
+            } else {
+                String str = jsonElement.getAsString();
+                return new PlotCoord(str);
+            }
+        }
     }
 }

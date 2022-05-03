@@ -4,12 +4,14 @@ import com.github.hhhzzzsss.buildsync.commands.*;
 import com.github.hhhzzzsss.buildsync.display.BossbarHandler;
 import com.github.hhhzzzsss.buildsync.display.ParticleBoundary;
 import com.github.hhhzzzsss.buildsync.fawe.DumpMonitor;
+import com.github.hhhzzzsss.buildsync.plots.PlotManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class BuildSyncPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         getDataFolder().mkdirs();
+        PlotManager.init(this);
 
         getServer().getPluginManager().registerEvents(BossbarHandler.INSTANCE, this);
 
@@ -19,6 +21,7 @@ public class BuildSyncPlugin extends JavaPlugin {
         getCommand("select").setExecutor(new SelectCommand());
         getCommand("deselect").setExecutor(new DeselectCommand());
         getCommand("toggleboundary").setExecutor(new ToggleBoundaryCommand());
+        getCommand("register").setExecutor(new RegisterCommand());
 
         getLogger().info("Build Sync Plugin was enabled");
     }

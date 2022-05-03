@@ -15,6 +15,10 @@ commands:
     description: Set active plot to null
     usage: /deselect
     permission: buildsync.use
+  register:
+    description: Registers the current selected plot under a name
+    usage: /register
+    permission: buildsync.use
   toggleboundary:
     description: Toggles the particles used to show the boundaries between plots
     usage: /toggleboundary
