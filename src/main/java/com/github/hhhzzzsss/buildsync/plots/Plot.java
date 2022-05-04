@@ -14,7 +14,7 @@ public class Plot {
     public int getX() {
         return pos.x;
     }
-    public int getY() {
+    public int getZ() {
         return pos.z;
     }
 
@@ -28,5 +28,9 @@ public class Plot {
 
     public boolean isSaved() {
         return saved;
+    }
+
+    public void setSaved(boolean saved) {
+        this.saved = saved;
     }
 }

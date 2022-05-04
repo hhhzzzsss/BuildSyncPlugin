@@ -5,6 +5,8 @@ import com.github.hhhzzzsss.buildsync.display.BossbarHandler;
 import com.github.hhhzzzsss.buildsync.display.ParticleBoundary;
 import com.github.hhhzzzsss.buildsync.fawe.DumpMonitor;
 import com.github.hhhzzzsss.buildsync.plots.PlotManager;
+import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class BuildSyncPlugin extends JavaPlugin {
@@ -22,6 +24,7 @@ public class BuildSyncPlugin extends JavaPlugin {
         getCommand("deselect").setExecutor(new DeselectCommand());
         getCommand("toggleboundary").setExecutor(new ToggleBoundaryCommand());
         getCommand("register").setExecutor(new RegisterCommand());
+        getCommand("save").setExecutor(new SaveCommand());
 
         getLogger().info("Build Sync Plugin was enabled");
     }
