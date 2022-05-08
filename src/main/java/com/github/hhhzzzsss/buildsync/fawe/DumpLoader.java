@@ -50,7 +50,7 @@ public class DumpLoader implements Runnable {
                 Component component = Component.text("Finished loading region dump").color(NamedTextColor.GRAY);
                 Bukkit.broadcast(component);
             });
-        }catch (SuggestInputParseException e) {
+        } catch (SuggestInputParseException e) {
             e.printStackTrace();
             Bukkit.getScheduler().runTask(plugin, () -> {
                 Component component = Component.text("Invalid block used in region dump palette. Deleting.").color(NamedTextColor.RED);
