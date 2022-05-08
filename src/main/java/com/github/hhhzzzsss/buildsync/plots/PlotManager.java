@@ -5,6 +5,8 @@ import com.github.hhhzzzsss.buildsync.display.BossbarHandler;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.sk89q.worldedit.EditSession;
+import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
 import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
@@ -98,22 +100,36 @@ public class PlotManager {
 
         @Override
         public void run() {
-            System.out.println("Thread started");
-            int blockX = plot.getX() * PlotUtils.PLOT_DIM;
-            int blockZ = plot.getZ() * PlotUtils.PLOT_DIM;
-            CuboidRegion region = new CuboidRegion(
-                    world,
-                    BlockVector3.at(blockX, 0, blockZ),
-                    BlockVector3.at(blockX+PlotUtils.PLOT_DIM, 255, blockZ+PlotUtils.PLOT_DIM)
-            );
-            Clipboard clipboard = new MemoryOptimizedClipboard(region);
+            System.out.println("Started thread");
+            Clipboard clipboard;
+            try (EditSession editSession =
+                         WorldEdit.getInstance()
+                                 .newEditSessionBuilder()
+                                 .world(world)
+                                 .fastMode(true)
+                                 .build()) {
+                int blockX = plot.getX() * PlotUtils.PLOT_DIM;
+                int blockZ = plot.getZ() * PlotUtils.PLOT_DIM;
+                CuboidRegion region = new CuboidRegion(
+                        BlockVector3.at(blockX, 0, blockZ),
+                        BlockVector3.at(blockX + PlotUtils.PLOT_DIM - 1, PlotUtils.PLOT_DIM - 1, blockZ + PlotUtils.PLOT_DIM - 1)
+                );
+                clipboard = new MemoryOptimizedClipboard(region);
+                clipboard.setOrigin(region.getCenter().toBlockPoint().withY(region.getMinimumY()));
 
-            ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(
-                    world, region, clipboard, region.getMinimumPoint()
-            );
-            forwardExtentCopy.setCopyingBiomes(false);
-            forwardExtentCopy.setCopyingEntities(false);
-            Operations.complete(forwardExtentCopy);
+                ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(
+                        editSession, region, clipboard, region.getMinimumPoint()
+                );
+                forwardExtentCopy.setCopyingBiomes(false);
+                forwardExtentCopy.setCopyingEntities(false);
+                try {
+                    Operations.complete(forwardExtentCopy);
+                } catch (Throwable e) {
+                    throw e;
+                } finally {
+                    clipboard.flush();
+                }
+            }
             System.out.println("Loaded clipboard");
 
             Path path = savedPlotsDir.resolve(plot.pos.toString() + ".schem");
@@ -128,7 +144,6 @@ public class PlotManager {
                 });
                 return;
             }
-            System.out.println("Saved schematic");
             plot.setSaved(true);
             try {
                 saveIndex();
@@ -143,6 +158,7 @@ public class PlotManager {
             Bukkit.getScheduler().runTask(plugin, () -> {
                 Bukkit.broadcast(Component.text("Successfully saved to schematic", NamedTextColor.GRAY));
             });
+            System.out.println("Saved schematic");
         }
     }
 
