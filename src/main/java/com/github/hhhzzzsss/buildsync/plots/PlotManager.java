@@ -31,6 +31,7 @@ import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.UUID;
 
 public class PlotManager {
     private static JavaPlugin plugin;
@@ -100,7 +101,6 @@ public class PlotManager {
 
         @Override
         public void run() {
-            System.out.println("Started thread");
             Clipboard clipboard;
             try (EditSession editSession =
                          WorldEdit.getInstance()
@@ -114,7 +114,7 @@ public class PlotManager {
                         BlockVector3.at(blockX, 0, blockZ),
                         BlockVector3.at(blockX + PlotUtils.PLOT_DIM - 1, PlotUtils.PLOT_DIM - 1, blockZ + PlotUtils.PLOT_DIM - 1)
                 );
-                clipboard = new MemoryOptimizedClipboard(region);
+                clipboard = new BlockArrayClipboard(region, UUID.fromString("3f797064-b9bb-588f-9337-e2deb81e8973"));
                 clipboard.setOrigin(region.getCenter().toBlockPoint().withY(region.getMinimumY()));
 
                 ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(
@@ -130,7 +130,6 @@ public class PlotManager {
                     clipboard.flush();
                 }
             }
-            System.out.println("Loaded clipboard");
 
             Path path = savedPlotsDir.resolve(plot.pos.toString() + ".schem");
             try {
@@ -158,7 +157,6 @@ public class PlotManager {
             Bukkit.getScheduler().runTask(plugin, () -> {
                 Bukkit.broadcast(Component.text("Successfully saved to schematic", NamedTextColor.GRAY));
             });
-            System.out.println("Saved schematic");
         }
     }
 
