@@ -143,6 +143,7 @@ public class PlotManager {
                 });
                 return;
             }
+            clipboard.close();
             plot.setSaved(true);
             try {
                 saveIndex();
